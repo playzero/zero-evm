@@ -1,12 +1,12 @@
 [package]
+name = "vanilla-node"
 authors = ["Anonymous"]
 build = "build.rs"
-description = "A new Cumulus FRAME-based Substrate Node, ready for hacking together a parachain."
+description = ""
 edition = "2021"
-homepage = "https://substrate.io"
+homepage = "https://zero.io"
 license = "Unlicense"
-name = "frontier-parachain-node"
-repository = "https://github.com/paritytech/cumulus/"
+repository = "https://github.com/zerodotio/zero-evm/"
 version = "1.0.0"
 
 [dependencies]
@@ -20,7 +20,7 @@ log = "0.4.17"
 serde = {version = "1.0.186", features = ["derive"]}
 
 # Local
-frontier-parachain-runtime = {path = "../runtime"}
+vanilla-runtime = {path = "../../runtimes/vanilla-runtime"}
 
 # Substrate
 frame-benchmarking = {git = "https://github.com/paritytech/polkadot-sdk", branch = "release-polkadot-v1.1.0"}
@@ -100,10 +100,10 @@ default = []
 txpool = []
 runtime-benchmarks = [
   "try-runtime-cli/try-runtime",
-  "frontier-parachain-runtime/runtime-benchmarks",
+  "vanilla-runtime/runtime-benchmarks",
   "polkadot-cli/runtime-benchmarks",
 ]
 try-runtime = [
   "try-runtime-cli/try-runtime",
-  "frontier-parachain-runtime/try-runtime",
+  "vanilla-runtime/try-runtime",
 ]

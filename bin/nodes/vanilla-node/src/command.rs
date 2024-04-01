@@ -5,7 +5,7 @@ use cumulus_client_cli::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
 use fc_db::kv::frontier_database_dir;
 use frame_benchmarking_cli::{BenchmarkCmd, SUBSTRATE_REFERENCE_HARDWARE};
-use frontier_parachain_runtime::Block;
+use vanilla_runtime::Block;
 use log::info;
 use sc_cli::{
 	ChainSpec, CliConfiguration, DefaultConfigurationValues, ImportParams, KeystoreParams,
@@ -38,7 +38,7 @@ fn load_spec(id: &str) -> std::result::Result<Box<dyn ChainSpec>, String> {
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		"Frontier Parachain Collator Template".into()
+		"vanilla evm".into()
 	}
 
 	fn impl_version() -> String {
@@ -47,7 +47,7 @@ impl SubstrateCli for Cli {
 
 	fn description() -> String {
 		format!(
-			"Frontier Parachain Collator Template\n\nThe command-line arguments provided first will be \
+			"vanilla evm\n\nThe command-line arguments provided first will be \
 		passed to the parachain node, while the arguments provided after -- will be passed \
 		to the relay chain node.\n\n\
 		{} <parachain-args> -- <relay-chain-args>",
@@ -60,7 +60,7 @@ impl SubstrateCli for Cli {
 	}
 
 	fn support_url() -> String {
-		"https://github.com/paritytech/frontier-parachain-template/issues/new".into()
+		"https://github.com/zerodotio/zero-evm/issues/new".into()
 	}
 
 	fn copyright_start_year() -> i32 {
@@ -74,7 +74,7 @@ impl SubstrateCli for Cli {
 
 impl SubstrateCli for RelayChainCli {
 	fn impl_name() -> String {
-		"Frontier Parachain Collator Template".into()
+		"vanilla evm".into()
 	}
 
 	fn impl_version() -> String {
@@ -83,7 +83,7 @@ impl SubstrateCli for RelayChainCli {
 
 	fn description() -> String {
 		format!(
-			"Frontier Parachain Collator Template\n\nThe command-line arguments provided first will be \
+			"vanilla evm\n\nThe command-line arguments provided first will be \
 		passed to the parachain node, while the arguments provided after -- will be passed \
 		to the relay chain node.\n\n\
 		{} <parachain-args> -- <relay-chain-args>",
@@ -96,7 +96,7 @@ impl SubstrateCli for RelayChainCli {
 	}
 
 	fn support_url() -> String {
-		"https://github.com/paritytech/frontier-parachain-template/issues/new".into()
+		"https://github.com/zerodotio/zero-evm/issues/new".into()
 	}
 
 	fn copyright_start_year() -> i32 {
@@ -219,7 +219,7 @@ pub fn run() -> Result<()> {
 			runner.sync_run(|config| {
 				let partials = new_partial(&config, &eth_cfg)?;
 				let spec = cli.load_spec(&cmd.shared_params.chain.clone().unwrap_or_default())?;
-				cmd.run::<frontier_parachain_runtime::opaque::Block>(&*spec, &*partials.client)
+				cmd.run::<vanilla_runtime::opaque::Block>(&*spec, &*partials.client)
 			})
 		},
 		Some(Subcommand::ExportGenesisWasm(cmd)) => {
@@ -273,7 +273,7 @@ pub fn run() -> Result<()> {
 		},
 		#[cfg(feature = "try-runtime")]
 		Some(Subcommand::TryRuntime(cmd)) => {
-			use frontier_parachain_runtime::MILLISECS_PER_BLOCK;
+			use vanilla_runtime::MILLISECS_PER_BLOCK;
 			use sc_executor::{sp_wasm_interface::ExtendedHostFunctions, NativeExecutionDispatch};
 			use try_runtime_cli::block_building_info::timestamp_with_aura_info;
 
@@ -345,7 +345,7 @@ pub fn run() -> Result<()> {
 						&id,
 					);
 
-				let block: frontier_parachain_runtime::opaque::Block =
+				let block: vanilla_runtime::opaque::Block =
 					generate_genesis_block(&*config.chain_spec, sp_runtime::StateVersion::V1)
 						.map_err(|e| format!("{:?}", e))?;
 				let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));

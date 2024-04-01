@@ -3,8 +3,8 @@ panic = "unwind"
 
 [workspace]
 members = [
-	"node",
+	"bin/nodes/*",
+	"bin/runtimes/*",
 	"pallets/*",
-	"runtime",
 ]
 resolver = "2"

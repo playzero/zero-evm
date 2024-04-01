@@ -1,5 +1,5 @@
 use cumulus_primitives_core::ParaId;
-use frontier_parachain_runtime::{AccountId, AuraId, Signature, EXISTENTIAL_DEPOSIT};
+use vanilla_runtime::{AccountId, AuraId, Signature, EXISTENTIAL_DEPOSIT};
 use sc_chain_spec::{ChainSpecExtension, ChainSpecGroup};
 use sc_service::ChainType;
 use serde::{Deserialize, Serialize};
@@ -9,7 +9,7 @@ use std::{collections::BTreeMap, marker::PhantomData, str::FromStr};
 
 /// Specialized `ChainSpec` for the normal parachain runtime.
 pub type ChainSpec =
-	sc_service::GenericChainSpec<frontier_parachain_runtime::RuntimeGenesisConfig, Extensions>;
+	sc_service::GenericChainSpec<vanilla_runtime::RuntimeGenesisConfig, Extensions>;
 
 /// The default XCM version to set in genesis config.
 const SAFE_XCM_VERSION: u32 = xcm::prelude::XCM_VERSION;
@@ -58,14 +58,14 @@ where
 /// Generate the session keys from individual elements.
 ///
 /// The input must be a tuple of individual keys (a single arg for now since we have just one key).
-pub fn template_session_keys(keys: AuraId) -> frontier_parachain_runtime::SessionKeys {
-	frontier_parachain_runtime::SessionKeys { aura: keys }
+pub fn template_session_keys(keys: AuraId) -> vanilla_runtime::SessionKeys {
+	vanilla_runtime::SessionKeys { aura: keys }
 }
 
 pub fn development_config() -> ChainSpec {
 	// Give your base currency a unit name and decimal places
 	let mut properties = sc_chain_spec::Properties::new();
-	properties.insert("tokenSymbol".into(), "UNIT".into());
+	properties.insert("tokenSymbol".into(), "XERO".into());
 	properties.insert("tokenDecimals".into(), 12.into());
 	properties.insert("ss58Format".into(), 42.into());
 
@@ -122,7 +122,7 @@ pub fn development_config() -> ChainSpec {
 pub fn local_testnet_config() -> ChainSpec {
 	// Give your base currency a unit name and decimal places
 	let mut properties = sc_chain_spec::Properties::new();
-	properties.insert("tokenSymbol".into(), "UNIT".into());
+	properties.insert("tokenSymbol".into(), "XERO".into());
 	properties.insert("tokenDecimals".into(), 12.into());
 	properties.insert("ss58Format".into(), 42.into());
 
@@ -187,36 +187,43 @@ fn testnet_genesis(
 	endowed_accounts: Vec<AccountId>,
 	root_key: Option<AccountId>,
 	id: ParaId,
-) -> frontier_parachain_runtime::RuntimeGenesisConfig {
+) -> vanilla_runtime::RuntimeGenesisConfig {
 	let alice = get_from_seed::<sr25519::Public>("Alice");
 	let bob = get_from_seed::<sr25519::Public>("Bob");
+	let charlie = get_from_seed::<sr25519::Public>("Bob");
 
-	frontier_parachain_runtime::RuntimeGenesisConfig {
-		system: frontier_parachain_runtime::SystemConfig {
-			code: frontier_parachain_runtime::WASM_BINARY
+	vanilla_runtime::RuntimeGenesisConfig {
+		system: vanilla_runtime::SystemConfig {
+			code: vanilla_runtime::WASM_BINARY
 				.expect("WASM binary was not build, please build it!")
 				.to_vec(),
 			..Default::default()
 		},
 		// Configure additional assets here
 		// For example, this configures asset "ALT1" & "ALT2" with owners, alice and bob, respectively
-		assets: frontier_parachain_runtime::AssetsConfig {
+		assets: vanilla_runtime::AssetsConfig {
 			assets: vec![
 				(1, alice.into(), true, 10_000_000_0000),
 				(2, bob.into(), true, 10_000_000_0000),
+				(3, charlie.into(), true, 10_000_000_0000),
 			],
 			// Genesis metadata: Vec<(id, name, symbol, decimals)>
 			metadata: vec![
-				(1, "asset-1".into(), "ALT1".into(), 10),
-				(2, "asset-2".into(), "ALT2".into(), 10),
+				(1, "pipo".into(), "PIPO".into(), 10),
+				(2, "pepe".into(), "PEPE".into(), 10),
+				(3, "papi".into(), "PAPI".into(), 10),
 			],
 			// Genesis accounts: Vec<(id, account_id, balance)>
-			accounts: vec![(1, alice.into(), 50_000_000_0000), (2, bob.into(), 50_000_000_0000)],
+			accounts: vec![
+				(1, alice.into(), 50_000_000_0000),
+				(2, bob.into(), 25_000_000_0000),
+				(3, charlie.into(), 25_000_000_0000)
+			],
 		},
-		balances: frontier_parachain_runtime::BalancesConfig {
+		balances: vanilla_runtime::BalancesConfig {
 			balances: endowed_accounts.iter().cloned().map(|k| (k, 1 << 60)).collect(),
 		},
-		council: frontier_parachain_runtime::CouncilConfig {
+		council: vanilla_runtime::CouncilConfig {
 			phantom: PhantomData,
 			members: endowed_accounts
 				.iter()
@@ -224,16 +231,16 @@ fn testnet_genesis(
 				.filter_map(|(idx, acc)| if idx % 2 == 0 { Some(acc.clone()) } else { None })
 				.collect::<Vec<_>>(),
 		},
-		parachain_info: frontier_parachain_runtime::ParachainInfoConfig {
+		parachain_info: vanilla_runtime::ParachainInfoConfig {
 			parachain_id: id,
 			..Default::default()
 		},
-		collator_selection: frontier_parachain_runtime::CollatorSelectionConfig {
+		collator_selection: vanilla_runtime::CollatorSelectionConfig {
 			invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
 			candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
 			..Default::default()
 		},
-		session: frontier_parachain_runtime::SessionConfig {
+		session: vanilla_runtime::SessionConfig {
 			keys: invulnerables
 				.into_iter()
 				.map(|(acc, aura)| {
@@ -250,18 +257,18 @@ fn testnet_genesis(
 		aura: Default::default(),
 		aura_ext: Default::default(),
 		parachain_system: Default::default(),
-		polkadot_xcm: frontier_parachain_runtime::PolkadotXcmConfig {
+		polkadot_xcm: vanilla_runtime::PolkadotXcmConfig {
 			safe_xcm_version: Some(SAFE_XCM_VERSION),
 			..Default::default()
 		},
-		sudo: frontier_parachain_runtime::SudoConfig { key: root_key },
+		sudo: vanilla_runtime::SudoConfig { key: root_key },
 		transaction_payment: Default::default(),
 		// EVM compatibility
-		evm_chain_id: frontier_parachain_runtime::EVMChainIdConfig {
+		evm_chain_id: vanilla_runtime::EVMChainIdConfig {
 			chain_id: 1000,
 			..Default::default()
 		},
-		evm: frontier_parachain_runtime::EVMConfig {
+		evm: vanilla_runtime::EVMConfig {
 			accounts: {
 				let mut map = BTreeMap::new();
 				map.insert(
